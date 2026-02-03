@@ -1,8 +1,6 @@
 "use strict";
 
 document.addEventListener('DOMContentLoaded', () => {
-    // State
-    // Initialize with some dummy data for immediate visual feedback
     let tasks = [
         {
             id: '1',
@@ -21,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
             completed: false
         }
     ];
-
-    // UI References
     const calendarStrip = document.getElementById('calendarStrip');
     const currentTaskCard = document.getElementById('currentTaskCard');
     const upcomingTaskList = document.getElementById('upcomingTaskList');
@@ -33,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('closeModalBtn');
     const addTaskForm = document.getElementById('addTaskForm');
 
-    // Helper to get Color Value from CSS Variable name mapping
     const getColorVar = (className) => {
         const map = {
             'color-green': 'var(--color-green)',
@@ -52,18 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return name.charAt(0).toUpperCase();
     };
 
-    // Initialization
     renderCalendar();
     renderTasks();
-
-    // Check time every minute
     setInterval(() => {
         renderTasks();
         updateTimeDisplay();
     }, 60000);
-    updateTimeDisplay(); // Initial call
+    updateTimeDisplay();
 
-    // Event Listeners
     addTaskBtn.addEventListener('click', () => {
         addTaskModal.classList.remove('hidden');
         const now = new Date();
@@ -81,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNewTask();
     });
 
-    // Global function for onclick handlers
     window.toggleTask = (id) => {
         const task = tasks.find(t => t.id === id);
         if (task) {
@@ -94,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date();
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-        // Generate last 2 days and next 4 days
         calendarStrip.innerHTML = '';
         for (let i = -2; i <= 4; i++) {
             const date = new Date(today);
@@ -114,20 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTasks() {
         const now = new Date();
 
-        // Sort tasks
         tasks.sort((a, b) => a.start - b.start);
 
         const currentTask = tasks.find(t => now >= t.start && now <= t.end);
         const upcoming = tasks.filter(t => t.start > now);
         const previous = tasks.filter(t => t.end < now);
 
-        // Render Current
         if (currentTask) {
             const totalDuration = currentTask.end - currentTask.start;
             const elapsed = now - currentTask.start;
             const percentage = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
 
-            // Check state for rendering (filled if checked)
             const checkIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
             currentTaskCard.innerHTML = `
@@ -147,10 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTaskCard.innerHTML = `<div class="empty-state">No active task right now</div>`;
         }
 
-        // Render Upcoming
         upcomingTaskList.innerHTML = upcoming.map(t => createTaskHTML(t)).join('');
 
-        // Render Previous
         previousTaskList.innerHTML = previous.map(t => createTaskHTML(t, true)).join('');
     }
 
@@ -186,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const [eHours, eMinutes] = endTimeStr.split(':');
         end.setHours(parseInt(eHours), parseInt(eMinutes), 0, 0);
 
-        // Handle Next Day logic if End < Start
         if (end < start) {
             end.setDate(end.getDate() + 1);
         }
@@ -215,18 +198,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatTime(date) {
         let hours = date.getHours();
         let minutes = date.getMinutes();
-        // const ampm = hours >= 12 ? 'PM' : 'AM'; // Design shows 24h or simple 12 without suffix usually, but let's stick to simple
-        // Design image: "9:00", "10:00" (no am/pm). But task list says "10 AM - 1 PM".
-        // Let's do 12h with AM/PM for list, simple for progress.
-        // Actually adhering to the image: "9:41" (header), "10 AM - 1 PM" (list).
 
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
         hours = hours ? hours : 12;
         minutes = minutes < 10 ? '0' + minutes : minutes;
-
-        // Return simplified for now, or sophisticated based on context?
-        // Let's just return formatted string "10:00 AM" for now to be safe.
         return `${hours}:${minutes} ${ampm}`;
     }
 
